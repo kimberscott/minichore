@@ -1,0 +1,25 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h1>Household: {{ household.name }}</h1>
+  
+  <div style="margin-left:20px;margin-top:20px" class="household">
+    <h2>Members <a href="{% url 'doer-create' household.id %}"class="ml-auto btn btn-outline-secondary addButton"><i class="fa fa-plus"></i>
+                                </a></h2> 
+
+    {% for doer in household.doer_set.all %}
+    	<button type="button" class="{% if doer.hasWeights %} btn btn-success member {% else %} btn btn-outline-secondary member {% endif %} ">
+    	{{doer.name}} </button>
+    {% endfor %}
+    
+    <h2>Chores <a href="{% url 'chore-create' household.id %}" class="ml-auto btn btn-outline-secondary addButton"><i class="fa fa-plus"></i>
+                                </a></h2> 
+    <ul>
+    {% for chore in household.chore_set.all %}
+    <li>{{ chore.name }}
+    <p> {% if chore.isFixed %} Fixed to {{chore.doer.name}} (value: {{chore.fixedValue}}){% else %} Not fixed {% endif %} </p>
+    </li>
+    {% endfor %}
+    </ul>
+  </div>
+{% endblock %}
