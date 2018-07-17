@@ -6,4 +6,6 @@ urlpatterns = [
 	path('households/create/', views.HouseholdCreate.as_view(), name='household-create'),
 	path('households/<uuid:pk>/createChore/', views.create_chore, name='chore-create'),
 	path('households/<uuid:pk>/createDoer/', views.create_doer, name='doer-create'),
+	path('households/chores/<int:pk>/delete/', views.ChoreDelete.as_view(), name='chore-delete'),
+	path('households/doers/<int:pk>/delete/', views.DoerDelete.as_view(), name='doer-delete'),
 ]

@@ -7,17 +7,29 @@
     <h2>Members <a href="{% url 'doer-create' household.id %}"class="ml-auto btn btn-outline-secondary addButton"><i class="fa fa-plus"></i>
                                 </a></h2> 
 
+	<div class="doers">
     {% for doer in household.doer_set.all %}
     	<button type="button" class="{% if doer.hasWeights %} btn btn-success member {% else %} btn btn-outline-secondary member {% endif %} ">
     	{{doer.name}} </button>
+    	<a href="{% url 'doer-delete' doer.pk %}" class="ml-auto btn btn-outline-secondary deleteButton">
+    		<i class="fa fa-minus"></i>
+		</a>
     {% endfor %}
+    </div>
     
     <h2>Chores <a href="{% url 'chore-create' household.id %}" class="ml-auto btn btn-outline-secondary addButton"><i class="fa fa-plus"></i>
                                 </a></h2> 
     <ul>
     {% for chore in household.chore_set.all %}
-    <li>{{ chore.name }}
-    <p> {% if chore.isFixed %} Fixed to {{chore.doer.name}} (value: {{chore.fixedValue}}){% else %} Not fixed {% endif %} </p>
+    <li>
+    {{ chore.name }}
+    <a href="{% url 'chore-delete' chore.pk %}" class="ml-auto btn btn-outline-secondary deleteButton">
+    	<i class="fa fa-minus"></i>
+	</a>
+    <p class="choreDetails"> 
+     {% if chore.isFixed %} Fixed to {{chore.doer.name}} (value: {{chore.fixedValue}}){% else %} Not fixed {% endif %} 
+
+	</p>
     </li>
     {% endfor %}
     </ul>

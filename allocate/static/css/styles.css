@@ -1,5 +1,5 @@
-p {
-	color: red;
+.household p.choreDetails{
+	font-style: italic;
 }
 
 button.member {
@@ -8,4 +8,20 @@ button.member {
 
 .household a {
 	appearance: button;
+}
+
+.household .deleteButton {
+	float: right;
+}
+
+.household li {
+	width: 50%;
+}
+
+.household .doers {
+	width: 50%;
+}
+
+.household .doers button {
+	display: block;
 }

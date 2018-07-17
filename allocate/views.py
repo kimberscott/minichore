@@ -65,3 +65,15 @@ def create_chore(request, pk):
         form = AddChoreForm()
 
     return render(request, 'allocate/chore_form.html', {'form': form, 'household':household})
+    
+class ChoreDelete(DeleteView):
+    model = Chore
+    
+    def get_success_url(self):
+        return reverse_lazy('household-detail', args=[self.object.household.id])
+        
+class DoerDelete(DeleteView):
+    model = Doer
+    
+    def get_success_url(self):
+        return reverse_lazy('household-detail', args=[self.object.household.id])
