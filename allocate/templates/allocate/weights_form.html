@@ -1,0 +1,85 @@
+{% extends "base_generic.html" %}
+{% load static %}
+
+
+{% block content %}
+
+
+
+{{doer.name}}'s chore weights
+
+<script type="text/javascript">
+	function updateTotal() {
+		var sum = 0;
+    	$('.weightInput').each(function() {
+    		if (!isNaN($(this).val())) {
+        		sum += Number($(this).val());
+        	}
+    	});
+    	$('#totalWeights').html(sum);
+    	return sum;
+	}
+	
+	function normalize() {
+		sum = updateTotal();
+		if (sum) {
+			$('.weightInput').each(function() {
+				if (!isNaN($(this).val())) {
+					$(this).val(Number($(this).val()) / sum * 100);
+				}
+			});
+    	}
+    	updateTotal();
+	}
+	
+	$( document ).ready(function() {
+     	updateTotal();
+     	$('#normalize').on('click', normalize);
+	});
+	
+</script>
+
+<form method="post">
+	{% csrf_token %}
+    {{ formset.management_form }}
+    <table>
+        {% for form in formset %}
+			{{ form.non_field_errors }}
+
+			  {% for hidden_field in form.hidden_fields %}
+				{{ hidden_field.errors }}
+				{{ hidden_field }}
+			  {% endfor %}
+
+			  <tr>
+				<th> {{ form.chore.name}} </th>
+				<td>
+				  {{ form.value }}
+				  {{ form.value.help_text }}
+				</td>
+				<td>
+				  {{ form.value.errors }}
+				</td>
+			  </tr>
+        {% endfor %}
+        
+        <tr>
+				<th> TOTAL </th>
+				<td id="totalWeights">
+				  
+				</td>
+				<td>
+				</td>
+		</tr>
+    </table>
+    <div class="row">
+    	<div class="col-sm-8">
+		<a href="{% url 'household-detail' doer.household.id %}" class="ml-auto btn btn-outline-danger doer pull-left">
+			Cancel
+		</a>
+		<button type="button" id="normalize" class="btn btn-outline-secondary doer pull-right">Normalize</button>
+		<input type="submit" value="Submit" class="btn btn-outline-secondary doer pull-right"/>
+		</div>
+    </div>
+</form>
+{% endblock %}

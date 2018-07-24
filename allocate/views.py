@@ -4,9 +4,10 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy, reverse
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect
+from django.forms import formset_factory
 
 from .models import Household, Doer, Chore, Allocation, Weight
-from .forms import AddChoreForm, AddDoerForm
+from .forms import AddChoreForm, AddDoerForm, AddWeightForm, BaseWeightFormSet
 
 # Create your views here.
 class HouseholdDetailView(generic.DetailView):
@@ -38,6 +39,39 @@ def create_doer(request, pk):
         form = AddDoerForm()
 
     return render(request, 'allocate/doer_form.html', {'form': form, 'household':household})
+    
+def enter_weights(request, pk):
+	doer = get_object_or_404(Doer, id=pk)
+	household = doer.household
+	chores = household.chore_set.all()
+	nChores = len(chores)
+	AddWeightFormFormSet = formset_factory(AddWeightForm, formset=BaseWeightFormSet)
+	
+	if request.method == 'POST':
+		formset = AddWeightFormFormSet(request.POST, form_kwargs={'doer': doer}, doer=doer)
+		if formset.is_valid(): # Save all the weights
+			for f in formset.forms:
+				ch = f.chore
+				v = f.cleaned_data['value']
+				try: # if weight already exists, update value
+					w = doer.weight_set.get(chore=ch)
+					w.value = v
+					w.save()
+				except: # otherwise create weight
+					w = Weight(value=v, doer=doer, chore=ch)
+					w.save()
+			return HttpResponseRedirect(reverse('household-detail', args=[household.id]))
+	else:
+		nChores = len(household.chore_set.all())
+		data = {
+			'form-TOTAL_FORMS': str(nChores),
+			'form-INITIAL_FORMS': str(nChores),
+			'form-MAX_NUM_FORMS': str(nChores),
+		}
+		initial = [{}] * nChores
+		formset = AddWeightFormFormSet(data, doer=doer, initial=initial, form_kwargs={'doer': doer})
+
+	return render(request, 'allocate/weights_form.html', {'formset': formset, 'doer':doer})
     
 def create_chore(request, pk):
     household = get_object_or_404(Household, id=pk)

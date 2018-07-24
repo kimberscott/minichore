@@ -94,7 +94,7 @@ class Weight(models.Model):
         """
         String for representing the Chore object (in Admin site etc.)
         """
-        return '{}: {}, {}'.format(doer.name, chore.name, value)
+        return '{}: {}, {}'.format(self.doer.name, self.chore.name, self.value)
         
 class Allocation(models.Model):
     """

@@ -2,16 +2,8 @@
 	font-style: italic;
 }
 
-button.member {
-	margin: .5em;
-}
-
 .household a {
 	appearance: button;
-}
-
-.household .deleteButton {
-	float: right;
 }
 
 .household li {
@@ -20,8 +12,29 @@ button.member {
 
 .household .doers {
 	width: 50%;
+    display:inline-block;
 }
 
-.household .doers button {
-	display: block;
+.household .doers button , .household .doers a {
+	margin: .5em;
+}
+
+.household .doers button.doer {
+	float: left;
+	clear: left;
+}
+
+.household .deleteButton {
+	float: right;
+}
+
+input {
+color: red;}
+
+div#buttonrow {
+	width: 60%;
+}
+
+.pull-right {
+	float:right;
 }

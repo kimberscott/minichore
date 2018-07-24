@@ -9,8 +9,12 @@
 
 	<div class="doers">
     {% for doer in household.doer_set.all %}
-    	<button type="button" class="{% if doer.hasWeights %} btn btn-success member {% else %} btn btn-outline-secondary member {% endif %} ">
-    	{{doer.name}} </button>
+    	<button type="button" class="btn btn-outline-secondary doer">
+    	{{doer.name}}</button>
+    	<a href="{% url 'enter-weights' doer.pk %}" class="ml-auto btn btn-outline-secondary deleteButton">
+    		Enter weights
+		</a>
+    	 {% if doer.hasWeights %} has weights {% endif %}
     	<a href="{% url 'doer-delete' doer.pk %}" class="ml-auto btn btn-outline-secondary deleteButton">
     		<i class="fa fa-minus"></i>
 		</a>
