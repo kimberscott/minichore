@@ -3,12 +3,38 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 import datetime #for checking renewal date range.
 from .models import Doer, Chore, Household, Weight
+from decimal import Decimal
+
+class HouseholdLookupForm(forms.Form):
+    name = forms.CharField()
+    
+    def clean_name(self):
+        data = self.cleaned_data['name']
+        if not Household.objects.filter(name=data).exists():
+            raise forms.ValidationError(_("Sorry, we can't find that household in the database."), code="invalid")
+        # Always return a value to use as the new cleaned data, even if
+        # this method didn't change it.
+        return data
     
 class AddChoreForm(forms.ModelForm):
 
     class Meta:
         model = Chore
         fields = ['name', 'isFixed', 'doer', 'fixedValue']
+        
+    def __init__(self, *args, **kwargs):
+        super(AddChoreForm, self).__init__(*args)
+        household = kwargs['household']
+        doers = household.doer_set.all()
+        doer_field = self.fields['doer'].widget
+        doer_choices = []
+        doer_choices.append(('', '---------'))
+        for doer in doers:
+            doer_choices.append((doer.pk, doer.name))
+        doer_field.choices = doer_choices
+        
+    # TODO: validation if fixed!!
+        
 
 class AddDoerForm(forms.ModelForm):
 
@@ -18,12 +44,16 @@ class AddDoerForm(forms.ModelForm):
         
 class AddWeightForm(forms.Form):
 
-    value=forms.FloatField(widget = forms.NumberInput(attrs = {'onchange' : "updateTotal();", 'class': 'weightInput'}))
+    value=forms.DecimalField(widget = forms.NumberInput(attrs = {'step': 0.01, 'onchange' : "updateTotal();", 'class': 'freeWeightInput'}))
     
     def __init__(self,*args,**kwargs):
         self.chore = kwargs.pop('chore')
         self.doer = kwargs.pop('doer')
         super(AddWeightForm,self).__init__(*args,**kwargs)
+        if self.chore.isFixed:
+            self.fields['value'].widget.attrs['readonly'] = True
+            self.fields['value'].initial = self.chore.fixedValue
+            self.fields['value'].required = False
         
 class BaseWeightFormSet(forms.BaseFormSet):
 
@@ -39,10 +69,14 @@ class BaseWeightFormSet(forms.BaseFormSet):
         return kwargs
         
     def get_total_weights(self):
-        self.total = sum([sum([field.value() if not(field.value() == None) else 0 for field in form]) for form in self.forms])
+        return sum([form.chore.fixedValue if form.chore.isFixed 
+            else Decimal(form['value'].value()) if not(form['value'].value() == None) else 0 for form in self.forms])
 
-    
-            
-
-
+    def clean(self):
+        """Checks that total of all weights is 100. Weights may be negative."""
+        if any(self.errors):
+            # Don't bother validating unless each form is valid on its own
+            return
+        if self.get_total_weights() != 100:
+            raise forms.ValidationError("Weights must sum to 100.")
 

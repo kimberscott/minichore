@@ -22,18 +22,32 @@
   <div class="container-fluid">
 
     <div class="row">
-      <div class="col-sm-2">
+      <div class="col-sm-3">
       {% block sidebar %}
       <ul class="sidebar-nav">
-
-      
-          <li><a href="">Home</a></li>
+          <li><a href="{% url 'index' %}">Home</a></li>
+          
+          {% if request.session.household %}
+          <li><p>Household: {{request.session.household.name}}</p>
+          <ul>
+          <li><a href="{% url 'household-detail' request.session.household.id %}">View/edit</a></li>          
+          <li><a {% if not household.editing %} href="{% url 'weights-overview' request.session.household.id %}" {% endif %}>Enter weights</a></li>
+          <li><a {% if household.have_all_weights %} href="{% url 'allocation-list' request.session.household.id %}" {% endif %}>View allocations</a></li>
+          </ul></li>
+          <li><a href="{% url 'household-lookup' %}">Switch household</a></li>
+          {% else %}
+          <li><a href="{% url 'household-lookup' %}">Look up household</a></li>
+          {% endif %}
+          <li><a href="{% url 'household-create' %}">New household</a></li>
+          
       </ul>
      {% endblock %}
       </div>
-      <div class="col-sm-10 ">
-      {% block content %}{% endblock %}
       
+      <div class="col-sm-7 ">
+      
+      {% block content %}{% endblock %}
+
       {% block pagination %}
 		  {% if is_paginated %}
 			  <div class="pagination">

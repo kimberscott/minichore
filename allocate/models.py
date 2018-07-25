@@ -11,8 +11,8 @@ class Household(models.Model):
 
     # Fields
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, help_text="Unique ID for this household")
-    allocations_are_current = models.BooleanField(default=False)
-    name = models.CharField(max_length=40, help_text="Enter a name for the household (e.g., 'The Scotts')")
+    editing = models.BooleanField(default=True)
+    name = models.CharField(max_length=40, unique=True, help_text="Enter a name for the household (e.g., 'The Scotts')")
 
     # Methods
     def get_absolute_url(self):
@@ -40,7 +40,7 @@ class Doer(models.Model):
     """
     
     name = models.CharField(max_length=40, help_text="Enter the name of a household member")
-    household = models.ForeignKey('Household', on_delete='CASCADE')
+    household = models.ForeignKey('Household', on_delete=models.CASCADE)
     hasWeights = models.BooleanField(default=False)
 
     # Metadata
@@ -59,12 +59,12 @@ class Chore(models.Model):
     """
 
     # Fields
-    name = models.CharField(max_length=40, help_text="Enter the name of a chore")
-    household = models.ForeignKey('Household', on_delete='CASCADE')
+    name = models.CharField(verbose_name='Chore name', max_length=40, help_text="Enter the name of a chore")
+    household = models.ForeignKey('Household', on_delete=models.CASCADE)
     
-    isFixed = models.BooleanField(default=False) 
-    doer = models.ForeignKey('Doer', on_delete=models.SET_NULL, blank=True, null=True)
-    fixedValue = models.FloatField(blank=True, null=True)
+    isFixed = models.BooleanField(verbose_name='Assigned?', default=False, help_text="Does this chore have to be done by a particular person?") 
+    doer = models.ForeignKey('Doer', verbose_name='Assigned to', on_delete=models.SET_NULL, blank=True, null=True, help_text="If fixed, who has to do this chore?")
+    fixedValue = models.DecimalField(verbose_name='Assigned value', max_digits=8, decimal_places=2, blank=True, null=True, help_text="If fixed, mutually agreed upon value of chore (out of 100)")
 
     # Metadata
     class Meta: 
@@ -74,7 +74,7 @@ class Chore(models.Model):
         """
         String for representing the Chore object (in Admin site etc.)
         """
-        return '{} (Household: {})'.format(self.name, self.household.name)
+        return '{} (Household: {}, isFixed: {}, fixedValue: {})'.format(self.name, self.household.name, self.isFixed, self.fixedValue)
         
 class Weight(models.Model):
     """
@@ -82,13 +82,13 @@ class Weight(models.Model):
     """
 
     # Fields
-    value = models.FloatField()
-    chore = models.ForeignKey('Chore', on_delete='CASCADE')
+    value = models.DecimalField(max_digits=8, decimal_places=2)
+    chore = models.ForeignKey('Chore', on_delete=models.CASCADE)
     doer = models.ForeignKey('Doer', on_delete='CASCADE')
 
     # Metadata
     class Meta: 
-        ordering = ["doer", "chore"]
+        ordering = ["chore", "doer"]
     
     def __str__(self):
         """
@@ -105,21 +105,35 @@ class Allocation(models.Model):
     household = models.ForeignKey('Household', on_delete='CASCADE')
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, help_text="Unique ID for this allocation")
     assignments = models.ManyToManyField(Weight, help_text='Weights for all doers for the chores they are assigned')
+    score = models.FloatField(default=100)
 
     def __str__(self):
         """
-        String for representing the Chore object (in Admin site etc.)
+        String for representing the Allocation object (in Admin site etc.)
         """
-        return '{} (Household: {})'.format(self.name, self.household.name)
+        return '{} (Household: {})'.format(self.id, self.household.name)
         
-    @property
-    def score(self):
+    def calculateScore(self):
         scores = []
         for d in Doer.objects.filter(household=self.household):
             dsAssignments = self.assignments.filter(doer=d)
-            scores.append(sum([a.chore.value if a.chore.isFixed else a.value for a in dsAssignments]))
+            scores.append(sum([a.chore.fixedValue if a.chore.isFixed else a.value for a in dsAssignments]))
         return max(scores)
+        
+    def next(self):
+        return (Allocation.objects
+            .filter(household=self.household, score__gt=self.score)
+            .exclude(id=self.id)
+            .order_by('score')
+            .first())
+    
+    def prev(self):
+        return (Allocation.objects
+        	.filter(household=self.household, score__lt=self.score)
+            .exclude(id=self.id)
+            .order_by('-score')
+            .first())
         
     # Metadata
     class Meta: 
-        ordering = ["household"]
+        ordering = ["household", "score"]

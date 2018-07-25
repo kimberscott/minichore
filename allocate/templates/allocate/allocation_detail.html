@@ -1,0 +1,51 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h2>Score: {{allocation.score}} </h2>
+  
+  <div class="row">
+  <table> 
+	  <tr>
+	  	<th>
+	  		 
+	  	</th>
+	  	{% for doer in household.doer_set.all %}
+		<th>
+			{{doer.name}}
+		</th>
+		{% endfor %}
+	  </tr>
+	  
+	  {% for weight in allocation.assignments.all %}
+  	  <tr>
+	  	<th>
+	  		{{weight.chore.name}}
+	  	</th>
+	  	{% for doer in household.doer_set.all %}
+		<td>
+			{% if doer == weight.doer %}
+				X
+			{% else %}
+			    -
+			{% endif %}
+		</td>
+		{% endfor %}
+	  </tr>
+	  {% endfor %}
+  
+  </table>
+  </div>
+  
+
+	<div class="row">
+		<div class="col-sm-8">
+		<a {% if allocation.prev.id %} href="{% url 'allocation-detail' household.id allocation.prev.id %}" {% endif %} class="ml-auto pull-left" >
+			Previous (better)
+		</a>
+		<a {% if allocation.next.id %} href="{% url 'allocation-detail' household.id allocation.next.id %}" {% endif %} class="ml-auto pull-right" >
+			Next (worse)
+		</a>
+		</div>
+    </div>
+  
+{% endblock %}

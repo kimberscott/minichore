@@ -4,32 +4,101 @@
 
 {% block content %}
 
-
-
-{{doer.name}}'s chore weights
+<h2>{{doer.name}}'s chore weights</h2>
 
 <script type="text/javascript">
+
+	/**
+	 * largestRemainderRound will round each number in an array to the nearest
+	 * integer but make sure that the the sum of all the numbers still equals
+	 * desiredTotal. Uses Largest Remainder Method.  Returns numbers in order they
+	 * came.
+	 *
+	 * @param {number[]} numbers - numbers to round
+	 * @param {number} desiredTotal - total that sum of the return list must equal
+	 * @return {number[]} the list of rounded numbers
+	 * @example
+	 *
+	 * var numbers = [13.6263, 47.9896, 9.59600 28.7880]
+	 * largestRemainderRound(numbers, 100)
+	 *
+	 * // => [14, 48, 9, 29]
+	 *
+	 * Author: scwood
+	 * https://gist.github.com/scwood/e58380174bd5a94174c9f08ac921994f
+	 */
+	function largestRemainderRound(numbers, desiredTotal) {
+	  var result = numbers.map(function(number, index) {
+		return {
+		  floor: Math.floor(number),
+		  remainder: getRemainder(number),
+		  index: index,
+		};
+	  }).sort(function(a, b) {
+		return b.remainder - a.remainder;
+	  });
+
+	  var lowerSum = result.reduce(function(sum, current) {
+		return sum + current.floor;
+	  }, 0);
+	  
+	  var delta = desiredTotal - lowerSum;
+	  for (var i = 0; i < delta; i++) {
+		result[i].floor += 1;
+	  }
+
+	  return result.sort(function(a, b) {
+		return a.index - b.index;
+	  }).map(function(result) {
+		return result.floor;
+	  });
+	}
+
+	function getRemainder(number) {
+	  var remainder = number - Math.floor(number);
+	  return remainder.toFixed(4);
+	}
+
+	/* End largestRemainderRound */
+
 	function updateTotal() {
-		var sum = 0;
-    	$('.weightInput').each(function() {
+		var freeSum = 0;
+    	$('.freeWeightInput').each(function() {
     		if (!isNaN($(this).val())) {
-        		sum += Number($(this).val());
+        		freeSum += Number($(this).val());
         	}
     	});
-    	$('#totalWeights').html(sum);
-    	return sum;
+    	var fixedSum = 0;
+    	$('td.fixedChoreVal').each(function() {
+    		if (!isNaN($(this).data('fixedval'))) {
+        		fixedSum += Number($(this).data('fixedval'));
+        	}
+    	});
+    	$('#totalWeights').html(freeSum + fixedSum);
+    	return {'freeSum': freeSum, 'fixedSum': fixedSum};
 	}
 	
 	function normalize() {
-		sum = updateTotal();
-		if (sum) {
-			$('.weightInput').each(function() {
-				if (!isNaN($(this).val())) {
-					$(this).val(Number($(this).val()) / sum * 100);
-				}
+		var sums = updateTotal();
+		var targetFreeSum = 100 - sums['fixedSum'];
+		
+		if (sums['freeSum']) {
+		
+			var freeWeights = [];
+			$('.freeWeightInput').each(function() {
+				freeWeights.push(100 * Number($(this).val()) / sums['freeSum'] * targetFreeSum)
+			});
+			console.log(freeWeights);
+			
+			var normedWeights = largestRemainderRound(freeWeights, targetFreeSum * 100)
+			
+			console.log(normedWeights)
+		
+			$('.freeWeightInput').each(function(ind, val) {
+				$(this).val(normedWeights[ind]/100);
 			});
     	}
-    	updateTotal();
+    	sums = updateTotal();
 	}
 	
 	$( document ).ready(function() {
@@ -42,25 +111,40 @@
 <form method="post">
 	{% csrf_token %}
     {{ formset.management_form }}
+    {{ formset.non_form_errors }}
     <table>
         {% for form in formset %}
 			{{ form.non_field_errors }}
 
-			  {% for hidden_field in form.hidden_fields %}
-				{{ hidden_field.errors }}
-				{{ hidden_field }}
-			  {% endfor %}
+				{% for hidden_field in form.hidden_fields %}
+					{{ hidden_field.errors }}
+					{{ hidden_field }}
+				{% endfor %}
 
-			  <tr>
-				<th> {{ form.chore.name}} </th>
-				<td>
-				  {{ form.value }}
-				  {{ form.value.help_text }}
-				</td>
-				<td>
-				  {{ form.value.errors }}
-				</td>
-			  </tr>
+				{% if form.chore.isFixed %}
+					<tr class="fixedChore">
+					<th> {{ form.chore.name}} </th>
+					<td class="fixedChoreVal" data-fixedVal={{form.value.initial}}>
+					  {{ form.value.initial }}
+					</td>
+					<td>
+					   This chore is assigned to {{form.chore.doer.name}}.
+					  {{ form.value.errors }}
+					</td>
+					</tr>
+				{% else %}
+					<tr>
+					<th> {{ form.chore.name}}</th>
+					<td>
+					  {{ form.value }}
+					  {{ form.value.help_text }}
+					</td>
+					<td>
+					  {{ form.value.errors }}
+					</td>
+					</tr>
+				{% endif %}
+			  
         {% endfor %}
         
         <tr>
@@ -74,6 +158,7 @@
     </table>
     <div class="row">
     	<div class="col-sm-8">
+    	<p> Note: editing weights will clear any existing allocations. </p>
 		<a href="{% url 'household-detail' doer.household.id %}" class="ml-auto btn btn-outline-danger doer pull-left">
 			Cancel
 		</a>
@@ -83,3 +168,4 @@
     </div>
 </form>
 {% endblock %}
+			

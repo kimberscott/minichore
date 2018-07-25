@@ -15,7 +15,7 @@
     display:inline-block;
 }
 
-.household .doers button , .household .doers a {
+.household .doers .row {
 	margin: .5em;
 }
 
@@ -28,13 +28,14 @@
 	float: right;
 }
 
-input {
-color: red;}
-
 div#buttonrow {
 	width: 60%;
 }
 
 .pull-right {
 	float:right;
+}
+
+tr.fixedChore {
+	color: gray;
 }

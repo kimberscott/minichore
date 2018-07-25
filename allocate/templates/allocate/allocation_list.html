@@ -1,0 +1,29 @@
+{% extends "base_generic.html" %}
+
+
+{% block content %}
+  <h2>All allocations</h2>
+  	<p> Each allocation's score is the maximum percentage of work any one household member 
+  	thinks he or she is doing. If you have 2 household members, for instance, then you 
+  	should probably be able to find an allocation with a score under 50. That means that 
+  	according to your own personal weights, you're each doing less than half the work. </p>
+  	<p> In theory, the lower the score, the better. However, you may each (or as a group) have a more complicated,
+  	non-linear utility function. Perhaps you want to make sure each household member has some
+  	daily chores and some bigger weekend/seasonal chores, or you don't want to end up with
+  	one person doing all the childcare-related tasks. You're free to mutually agree on an 
+  	allocation other than the "best" one - that's just a starting point! </p>  
+      {% if allocation_list %}
+    <ul>
+
+      {% for allo in allocation_list %}
+      <li>
+        <a href="{% url 'allocation-detail' allo.household.id allo.id %}">{{ allo.id }}</a> (Score: {{allo.score}})
+      </li>
+      {% endfor %}
+
+    </ul>
+    {% else %}
+      <p>There are no allocations stored.</p>
+    {% endif %}   
+  
+{% endblock %}

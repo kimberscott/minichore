@@ -1,0 +1,47 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h1>Enter/edit weights</h1>
+
+	
+	
+	 <table> 
+	 
+	 {% for doer in household.doer_set.all %}
+	  <tr>
+	  	<th>
+	  		 {{doer.name}}
+	  	</th>
+	  	
+		<td>
+			{% if doer.hasWeights %}
+			<i class="fa fa-check"></i>
+			{% else %}
+			<i class="fa fa-minus"></i>
+			{% endif %}
+		</td>
+		
+		<td>
+			
+    	{% if doer.hasWeights %}
+    		<a href="{% url 'enter-weights' doer.pk %}" class="ml-auto btn btn-outline-secondary">
+    			Edit weights
+    		</a>
+    	{% else %}
+    		<a href="{% url 'enter-weights' doer.pk %}" class="ml-auto btn btn-outline-primary">
+    			Enter weights
+    		</a>
+    	{% endif %}
+		</td>
+		
+	  </tr>
+	  
+	  {% endfor %}
+  
+  </table>
+  
+  <p> Once all household members have entered their weights, you will be able to view
+  the best ways to divy up your chores. </p>
+	
+  </div>
+{% endblock %}
