@@ -3,7 +3,9 @@ from . import views
 
 urlpatterns = [
 	path('', views.index, name='index'),
-	path('households/<uuid:pk>', views.HouseholdDetailView.as_view(), name='household-detail'),
+	path('households/<uuid:pk>/', views.HouseholdDetailView.as_view(), name='household-detail'),
+	path('households/<uuid:pk>/lock/', views.HouseholdDetailView.as_view(),  {'changeLock': 'lock'}, name='household-detail-lock'),
+	path('households/<uuid:pk>/unlock/', views.HouseholdDetailView.as_view(), {'changeLock': 'unlock'}, name='household-detail-unlock'),
 	path('households/create/', views.HouseholdCreate.as_view(), name='household-create'),
 	path('households/lookup/', views.HouseholdLookup.as_view(), name='household-lookup'),
 	path('households/<uuid:pk>/createChore/', views.create_chore, name='chore-create'),

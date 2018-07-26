@@ -124,12 +124,22 @@ class HouseholdDetailView(generic.DetailView):
     model = Household
     
     def dispatch(self, request, *args, **kwargs):
-        request.session['household'] = self.get_object()
+        household = self.get_object()
+        request.session['household'] = household
+        if 'changeLock' in kwargs:
+            if kwargs['changeLock'] == 'unlock':
+                household.allocation_set.all().delete()
+                Weight.objects.filter(doer__household=household).delete()
+                # Set all doers as not having weights set
+                
+                household.editing = True
+                household.save()
+                print('unlock it!')
+            elif kwargs['changeLock'] == 'lock':
+                household.editing = False
+                household.save()
+                print('lock it!')
         return super(HouseholdDetailView, self).dispatch(request, *args, **kwargs)
-        
-# Current status: working on lock/unlock of household details. May be able to set up to 
-# let HouseholdDetailView take a lock/unlock argument and if that's provided it happens
-# in the dispatch, and we just link to a url including lock/unlock.
         
 class HouseholdWeightsView(generic.DetailView):
     model = Household
@@ -204,6 +214,6 @@ class AllocationListView(generic.list.ListView):
     def get_queryset(self):
         household = get_object_or_404(Household, id=self.kwargs['pk'])
         if not household.allocation_set.all().exists():
-        	generate_allocations(household)
+            generate_allocations(household)
         return household.allocation_set.all()
 
