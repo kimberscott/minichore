@@ -53,6 +53,14 @@ class Doer(models.Model):
         """
         return '{} (Household: {})'.format(self.name, self.household.name)
         
+    # Don't allow deletion when household is not in edit mode
+    def delete(self, *args, **kwargs):
+        if not self.household.editing:
+            raise Exception('Household is not in editing mode.')
+        super().delete(*args, **kwargs)
+        
+    # Do allow saving - name changes are ok and whether doer has weights will change!
+        
 class Chore(models.Model):
     """
     A class representing a chore that needs to be assigned to someone.
@@ -75,7 +83,18 @@ class Chore(models.Model):
         String for representing the Chore object (in Admin site etc.)
         """
         return '{} (Household: {}, isFixed: {}, fixedValue: {})'.format(self.name, self.household.name, self.isFixed, self.fixedValue)
+  
+  	# Don't allow deletion OR saving any changes unless household is in edit mode!
+    def delete(self, *args, **kwargs):
+        if not self.household.editing:
+            raise Exception('Household is not in editing mode.')
+        super().delete(*args, **kwargs)  
         
+    def save(self, *args, **kwargs):
+        if not self.household.editing:
+            raise Exception('Household is not in editing mode.')
+        super().save(*args, **kwargs)  
+  
 class Weight(models.Model):
     """
     A class representing the cost one doer associates with a chore.

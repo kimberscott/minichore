@@ -1,41 +1,77 @@
+.pull-right {
+	float:right;
+}
+
 .household p.choreDetails{
 	font-style: italic;
 }
 
-.household a {
-	appearance: button;
-}
-
 .household li {
-	width: 50%;
-}
-
-.household .doers {
-	width: 50%;
-    display:inline-block;
-}
-
-.household .doers .row {
-	margin: .5em;
-}
-
-.household .doers button.doer {
-	float: left;
-	clear: left;
-}
-
-.household .deleteButton {
-	float: right;
+	width: 100%;
+	list-style-type: none;
 }
 
 div#buttonrow {
 	width: 60%;
 }
 
-.pull-right {
-	float:right;
+.btn {
+	margin: 3px;
+}
+
+li .btn {
+	vertical-align: center;
+}
+
+li {
+	vertical-align: middle;
 }
 
 tr.fixedChore {
 	color: gray;
+}
+
+.sidebar {
+	padding: 5%;
+}
+
+.sidebar ul {
+	list-style-type: none;
+}
+
+.content {
+	padding: 50px;
+}
+
+.titleblock {
+	margin-bottom: 3em;
+}
+
+form {
+	max-width: 600px;
+}
+
+.helptext {
+	color: gray;
+}
+
+form table th, form table td {
+	vertical-align: top;
+}
+
+form table th {
+	padding-right: 1em;
+}
+
+table.doerWeights th, table.doerWeights td {
+	padding-right: 3em;
+}
+
+.nav-link i {
+	width: 1.5em;
+	color: black;
+}
+
+span.changestatus {
+	float: right;
 }

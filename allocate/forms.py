@@ -6,7 +6,7 @@ from .models import Doer, Chore, Household, Weight
 from decimal import Decimal
 
 class HouseholdLookupForm(forms.Form):
-    name = forms.CharField()
+    name = forms.CharField(help_text='Enter the name of the household you want to find. This is case-sensitive and should exactly match the name you used before.')
     
     def clean_name(self):
         data = self.cleaned_data['name']
@@ -16,16 +16,33 @@ class HouseholdLookupForm(forms.Form):
         # this method didn't change it.
         return data
     
-class AddChoreForm(forms.ModelForm):
+class HouseholdEditForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(HouseholdEditForm, self).__init__(*args)
+        self.household = kwargs['household']
+        
+    def clean(self):
+        """Checks that household is in editing state."""
+        cleaned_data = super().clean()
+        if any(self.errors):
+            # Don't bother validating unless each field is valid on its own
+            return
+        if not self.household.editing:
+            raise forms.ValidationError("Household is not in editing mode.")
+    
+class AddChoreForm(HouseholdEditForm):
 
     class Meta:
         model = Chore
         fields = ['name', 'isFixed', 'doer', 'fixedValue']
         
     def __init__(self, *args, **kwargs):
-        super(AddChoreForm, self).__init__(*args)
-        household = kwargs['household']
-        doers = household.doer_set.all()
+        super(AddChoreForm, self).__init__(*args, **kwargs)
+        chore = kwargs.get('chore', None)
+        if chore is not None:
+        	self.initial = {'name': chore.name, 'isFixed': chore.isFixed, 'doer': chore.doer.pk if chore.doer else '', 'fixedValue': chore.fixedValue}
+        doers = self.household.doer_set.all()
         doer_field = self.fields['doer'].widget
         doer_choices = []
         doer_choices.append(('', '---------'))
@@ -36,11 +53,17 @@ class AddChoreForm(forms.ModelForm):
     # TODO: validation if fixed!!
         
 
-class AddDoerForm(forms.ModelForm):
+class AddDoerForm(HouseholdEditForm):
 
     class Meta:
         model = Doer
         fields = ['name']
+        
+    def __init__(self, *args, **kwargs):
+        super(AddDoerForm, self).__init__(*args, **kwargs)
+        doer = kwargs.get('doer', None)
+        if doer is not None:
+        	self.initial = {'name': doer.name}
         
 class AddWeightForm(forms.Form):
 

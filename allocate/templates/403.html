@@ -1,0 +1,11 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+
+{% if exception %}
+  <p>Permission denied: {{ exception }}</p>
+{% else %}
+  <p>Permission denied.</p>
+{% endif %}
+
+{% endblock %}

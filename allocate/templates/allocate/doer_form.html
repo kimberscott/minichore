@@ -7,7 +7,10 @@
     <table>
     {{ form.as_table }}
     </table>
-    <input type="submit" value="Submit" />
+    <a href="{% url 'household-detail' form.household.id %}" class="ml-auto btn btn-outline-danger pull-left">
+		Cancel
+	</a>
+    <input class="ml-auto btn btn-outline-success pull-right" type="submit" value="Submit" />
     
 </form>
 {% endblock %}

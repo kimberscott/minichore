@@ -22,29 +22,32 @@
   <div class="container-fluid">
 
     <div class="row">
-      <div class="col-sm-3">
+      <div class="col-sm-3 sidebar">
       {% block sidebar %}
-      <ul class="sidebar-nav">
-          <li><a href="{% url 'index' %}">Home</a></li>
+
+      
+      
+      <nav class="nav flex-column nav-tabs" role="navigation">
+          <a class="nav-link" href="{% url 'index' %}">Home</a>
           
           {% if request.session.household %}
-          <li><p>Household: {{request.session.household.name}}</p>
+          <a class="nav-link" > Household: {{request.session.household.name}} </a>
           <ul>
-          <li><a href="{% url 'household-detail' request.session.household.id %}">View/edit</a></li>          
-          <li><a {% if not household.editing %} href="{% url 'weights-overview' request.session.household.id %}" {% endif %}>Enter weights</a></li>
-          <li><a {% if household.have_all_weights %} href="{% url 'allocation-list' request.session.household.id %}" {% endif %}>View allocations</a></li>
-          </ul></li>
-          <li><a href="{% url 'household-lookup' %}">Switch household</a></li>
+          <li><a class="nav-link" href="{% url 'household-detail' request.session.household.id %}"><i class="fa fa-edit"></i> View/edit</a></li>          
+          <li><a class="nav-link" {% if not household.editing %} href="{% url 'weights-overview' request.session.household.id %}" {% endif %}><i class="fa fa-balance-scale"></i> Enter weights</a></li>
+          <li><a class="nav-link" {% if household.have_all_weights %} href="{% url 'allocation-list' request.session.household.id %}" {% endif %}><i class="fa fa-clipboard-list"></i> View allocations</a></li>
+          </ul>
+          <a class="nav-link" href="{% url 'household-lookup' %}">Switch household</a>
           {% else %}
-          <li><a href="{% url 'household-lookup' %}">Look up household</a></li>
+          <a class="nav-link" href="{% url 'household-lookup' %}">Look up household</a>
           {% endif %}
-          <li><a href="{% url 'household-create' %}">New household</a></li>
+          <a class="nav-link" href="{% url 'household-create' %}">New household</a>
           
-      </ul>
+      </nav>
      {% endblock %}
       </div>
       
-      <div class="col-sm-7 ">
+      <div class="col-sm-7 content">
       
       {% block content %}{% endblock %}
 

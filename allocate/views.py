@@ -3,13 +3,14 @@ from django.views import generic
 from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormView
 from django.urls import reverse_lazy, reverse
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.forms import formset_factory
+from django.core.exceptions import ValidationError, PermissionDenied
 
 import itertools
 
 from .models import Household, Doer, Chore, Allocation, Weight
-from .forms import AddChoreForm, AddDoerForm, AddWeightForm, BaseWeightFormSet, HouseholdLookupForm
+from .forms import AddChoreForm, AddDoerForm, AddWeightForm, BaseWeightFormSet, HouseholdLookupForm, HouseholdEditForm
 
 # Model object creation/deletion/update views    
     
@@ -23,10 +24,8 @@ def create_doer(request, pk):
     # If this is a POST request then process the Form data
     if request.method == 'POST':
         # Create a form instance and populate it with data from the request (binding):
-        form = AddDoerForm(request.POST)
-        # Check if the form is valid:
+        form = AddDoerForm(request.POST, household=household)
         if form.is_valid():
-            # process the data in form.cleaned_data as required (here we just write it to the model due_back field)
             doer = Doer(household=household,
                 name=form.cleaned_data['name']
             )
@@ -36,7 +35,26 @@ def create_doer(request, pk):
 
     # If this is a GET (or any other method) create the default form.
     else:
-        form = AddDoerForm()
+        form = AddDoerForm(household=household)
+
+    return render(request, 'allocate/doer_form.html', {'form': form, 'household':household})
+    
+def update_doer(request, pk):
+    doer = get_object_or_404(Doer, pk=pk)
+    household = doer.household
+    
+    # If this is a POST request then process the Form data
+    if request.method == 'POST':
+        # Create a form instance and populate it with data from the request (binding):
+        form = AddDoerForm(request.POST, household=household, doer=doer)
+        if form.is_valid():
+            doer.name = form.cleaned_data['name']
+            doer.save()
+            return HttpResponseRedirect(reverse('household-detail', args=[household.id]))
+
+    # If this is a GET (or any other method) create the default form.
+    else:
+        form = AddDoerForm(household=household, doer=doer)
 
     return render(request, 'allocate/doer_form.html', {'form': form, 'household':household})
     
@@ -66,7 +84,7 @@ def enter_weights(request, pk):
             doer.save()
             # Get rid of any previous allocations since scores will be incorrect
             household.allocation_set.all().delete()
-            return HttpResponseRedirect(reverse('household-detail', args=[household.id]))
+            return HttpResponseRedirect(reverse('weights-overview', args=[household.id]))
     else:
         nChores = len(household.chore_set.all())
         data = {
@@ -86,10 +104,7 @@ def create_chore(request, pk):
     if request.method == 'POST':
         # Create a form instance and populate it with data from the request (binding):
         form = AddChoreForm(request.POST, household=household)
-        # Check if the form is valid:
         if form.is_valid():
-            # process the data in form.cleaned_data as required (here we just write it to the model due_back field)
-           
             chore = Chore(household=household,
                 name=form.cleaned_data['name'],
                 isFixed=form.cleaned_data['isFixed'],
@@ -99,10 +114,31 @@ def create_chore(request, pk):
             chore.save()
             # redirect to a new URL:
             return HttpResponseRedirect(reverse('household-detail', args=[pk]))
-
     # If this is a GET (or any other method) create the default form.
     else:
         form = AddChoreForm(household=household)
+
+    return render(request, 'allocate/chore_form.html', {'form': form, 'household':household})
+    
+def update_chore(request, pk):
+    chore = get_object_or_404(Chore, pk=pk)
+    household = chore.household
+    
+    # If this is a POST request then process the Form data
+    if request.method == 'POST':
+        # Create a form instance and populate it with data from the request (binding):
+        form = AddChoreForm(request.POST, household=household)
+        if form.is_valid():
+            chore.name = form.cleaned_data['name']
+            chore.isFixed = form.cleaned_data['isFixed']
+            chore.doer = form.cleaned_data['doer']
+            chore.fixedValue = form.cleaned_data['fixedValue']
+            chore.save()
+            # redirect to a new URL:
+            return HttpResponseRedirect(reverse('household-detail', args=[household.id]))
+    # If this is a GET (or any other method) create the default form.
+    else:
+        form = AddChoreForm(household=household, chore=chore)
 
     return render(request, 'allocate/chore_form.html', {'form': form, 'household':household})
     
@@ -112,11 +148,25 @@ class ChoreDelete(DeleteView):
     def get_success_url(self):
         return reverse_lazy('household-detail', args=[self.object.household.id])
         
+    def get_object(self):
+        """ Make sure household is in editing mode, or raise 403 """
+        chore = super(ChoreDelete, self).get_object()
+        if not chore.household.editing:
+            raise PermissionDenied("Household is not in editing mode.")
+        return chore
+        
 class DoerDelete(DeleteView):
     model = Doer
     
     def get_success_url(self):
         return reverse_lazy('household-detail', args=[self.object.household.id])
+        
+    def get_object(self):
+        """ Make sure household is in editing mode, or raise 403 """
+        chore = super(DoerDelete, self).get_object()
+        if not chore.household.editing:
+            raise PermissionDenied("Household is not in editing mode.")
+        return chore
         
 # Display information views        
 
@@ -131,14 +181,14 @@ class HouseholdDetailView(generic.DetailView):
                 household.allocation_set.all().delete()
                 Weight.objects.filter(doer__household=household).delete()
                 # Set all doers as not having weights set
-                
+                for doer in household.doer_set.all():
+                    doer.hasWeights = False
+                    doer.save()
                 household.editing = True
                 household.save()
-                print('unlock it!')
             elif kwargs['changeLock'] == 'lock':
                 household.editing = False
                 household.save()
-                print('lock it!')
         return super(HouseholdDetailView, self).dispatch(request, *args, **kwargs)
         
 class HouseholdWeightsView(generic.DetailView):

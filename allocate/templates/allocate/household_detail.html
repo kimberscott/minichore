@@ -4,38 +4,48 @@
   <h1>Household: {{ household.name }}</h1>
   
   {% if household.editing %} 
-  	<p>Current status: Editing </p>
-  	<p><a href="{% url 'household-detail-lock' household.id %}">Save & lock to enter weights</a></p>
+  	<p><i class="fa fa-edit"></i> Editing 
+  	<span class="changestatus"><a href="{% url 'household-detail-lock' household.id %}"><i class="fa fa-lock"></i> Lock to move on to weights</a></span></p>
   {% else %}
-  	<p>Current status: Locked</p>
-  	<p><a href="{% url 'household-detail-unlock' household.id %}">Unlock to edit household members or chores</a></p>
+  	<p><i class="fa fa-lock"></i> Locked
+  	<span class="changestatus"><a href="{% url 'household-detail-unlock' household.id %}"><i class="fa fa-unlock"></i> Unlock to edit household members or chores</a></span>
+  	</p>
+  	<p><span class="changestatus">(Note: unlocking will delete any weights you have already entered.)</span></p>
   {% endif %}
   
-  <div style="margin-left:20px;margin-top:20px" class="household">
+  <div class="household">
     <h2>Members 
 		{% if household.editing %}
-		<a href="{% url 'doer-create' household.id %}"class="ml-auto btn btn-outline-secondary addButton">
+		<a href="{% url 'doer-create' household.id %}"class="ml-auto btn btn-outline-secondary">
 			<i class="fa fa-plus"></i>
 		</a>
 		{% endif %}
-    </h2> 
+    </h2>
 
-	<div class="doers">
+	<ul>
     {% for doer in household.doer_set.all %}
-    	<div class="row">
-			{{doer.name}}
-			{% if household.editing %}
-			<a href="{% url 'doer-delete' doer.pk %}" class="ml-auto btn btn-outline-secondary ">
-				<i class="fa fa-minus"></i>
-			</a>
-			{% endif %}
-		</div>
+    <li>
+		{{doer.name}}
+		
+		{% if household.editing %}
+		<a href="{% url 'doer-delete' doer.pk %}" class="ml-auto btn btn-outline-secondary pull-right">
+			<i class="fa fa-times"></i>
+		</a>
+		<a href="{% url 'doer-update' doer.pk %}" class="ml-auto btn btn-outline-secondary pull-right">
+			Edit
+		</a>
+		{% endif %}
+		<p class="choreDetails">
+		Equal member
+		</p>
+	</li>
     {% endfor %}
-    </div>
+    </ul>
     
     <h2>Chores 
     {% if household.editing %}
-		<a href="{% url 'chore-create' household.id %}" class="ml-auto btn btn-outline-secondary addButton"><i class="fa fa-plus"></i>
+		<a href="{% url 'chore-create' household.id %}" class="ml-auto btn btn-outline-secondary">
+			<i class="fa fa-plus"></i>
 		</a> 
     {% endif %}
     </h2> 
@@ -45,12 +55,15 @@
 		<li>
 			{{ chore.name }}
 			{% if household.editing %}
-			<a href="{% url 'chore-delete' chore.pk %}" class="ml-auto btn btn-outline-secondary deleteButton">
-				<i class="fa fa-minus"></i>
+			<a href="{% url 'chore-delete' chore.pk %}" class="ml-auto btn btn-outline-secondary pull-right">
+				<i class="fa fa-times"></i>
+			</a>
+			<a href="{% url 'chore-update' chore.pk %}" class="ml-auto btn btn-outline-secondary pull-right">
+				Edit
 			</a>
 			{% endif %}
 			<p class="choreDetails"> 
-			 {% if chore.isFixed %} Fixed to {{chore.doer.name}} (value: {{chore.fixedValue}}){% else %} Not fixed {% endif %} 
+			 {% if chore.isFixed %} Assigned to {{chore.doer.name}} (value: {{chore.fixedValue}}){% else %} To be assigned {% endif %} 
 			</p>
 		</li>
     {% endfor %}
