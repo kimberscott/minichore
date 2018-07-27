@@ -1,10 +1,13 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
-  <h2>Score: {{allocation.score}} </h2>
+  <h3>
+  	<span class="pull-left"> Allocation {{allocation.position}} </span>
+  	<span class="pull-right"> Score: {{allocation.score}} <i class="info fa fa-question-circle" data-toggle="tooltip" title="The maximum anyone has to do is {{allocation.score}}% of the work."></i></span>
+  </h3>
   
   <div class="row">
-  <table> 
+  <table id="allocationTable"> 
 	  <tr>
 	  	<th>
 	  		 
@@ -24,28 +27,39 @@
 	  	{% for doer in household.doer_set.all %}
 		<td>
 			{% if doer == weight.doer %}
-				X
+				<i class="fa fa-check-circle"></i>
 			{% else %}
-			    -
+			    <i class="fa fa-minus"></i>
 			{% endif %}
 		</td>
 		{% endfor %}
 	  </tr>
 	  {% endfor %}
+	  
+	  <tr class="totalRow">
+	  	<th>
+	  		Total work
+	  	</th>
+	  	{% for iS in indScores %}
+		<td>
+			{{iS}}
+		</td>
+		{% endfor %}
+	  </tr>
   
   </table>
   </div>
-  
 
-	<div class="row">
-		<div class="col-sm-8">
+	<div class="row allo-nav">	
+	<div class="col-md-12">
 		<a {% if allocation.prev.id %} href="{% url 'allocation-detail' household.id allocation.prev.id %}" {% endif %} class="ml-auto pull-left" >
 			Previous (better)
 		</a>
 		<a {% if allocation.next.id %} href="{% url 'allocation-detail' household.id allocation.next.id %}" {% endif %} class="ml-auto pull-right" >
 			Next (worse)
 		</a>
-		</div>
+	<div class="col-md-12">
     </div>
   
 {% endblock %}
+

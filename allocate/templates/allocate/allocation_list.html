@@ -17,7 +17,7 @@
 
       {% for allo in allocation_list %}
       <li>
-        <a href="{% url 'allocation-detail' allo.household.id allo.id %}">{{ allo.id }}</a> (Score: {{allo.score}})
+        <a href="{% url 'allocation-detail' allo.household.id allo.id %}">Allocation {{ allo.position }}</a> (Score: {{allo.score}})
       </li>
       {% endfor %}
 

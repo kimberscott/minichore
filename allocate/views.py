@@ -248,14 +248,16 @@ def generate_allocations(household):
         for (d, ch) in zip(doerAssignment, freeChores):
             w = d.weight_set.get(chore=ch)
             allo.assignments.add(w)
-        allo.score = allo.calculateScore()
-        print(allo.score)
+        (score, scoreDict) = allo.calculateScore()
+        allo.score = score
+        allo.allScores = scoreDict
         allo.save()
     
 def allocation_detail(request, pkh, pka):
     household = get_object_or_404(Household, id=pkh)
     allocation = get_object_or_404(Allocation, id=pka)
-    return render(request, 'allocate/allocation_detail.html', {'household':household, 'allocation': allocation})
+    indScores = [allocation.allScores[str(doer.pk)] for doer in household.doer_set.all()]
+    return render(request, 'allocate/allocation_detail.html', {'household':household, 'allocation': allocation, 'indScores': indScores})
     
 class AllocationListView(generic.list.ListView):
     model = Allocation

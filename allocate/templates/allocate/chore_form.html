@@ -4,7 +4,7 @@
 
 <form action="" method="post">
     {% csrf_token %}
-    <table>
+    <table id="choreForm">
     {{ form.as_table }}
     </table>
     <a href="{% url 'household-detail' form.household.id %}" class="ml-auto btn btn-outline-danger doer pull-left">

@@ -1,6 +1,7 @@
 from django.db import models
 import uuid
 from django.urls import reverse #Used to generate URLs by reversing the URL patterns
+from jsonfield import JSONField
 
 class Household(models.Model):
     """
@@ -71,8 +72,8 @@ class Chore(models.Model):
     household = models.ForeignKey('Household', on_delete=models.CASCADE)
     
     isFixed = models.BooleanField(verbose_name='Assigned?', default=False, help_text="Does this chore have to be done by a particular person?") 
-    doer = models.ForeignKey('Doer', verbose_name='Assigned to', on_delete=models.SET_NULL, blank=True, null=True, help_text="If fixed, who has to do this chore?")
-    fixedValue = models.DecimalField(verbose_name='Assigned value', max_digits=8, decimal_places=2, blank=True, null=True, help_text="If fixed, mutually agreed upon value of chore (out of 100)")
+    doer = models.ForeignKey('Doer', verbose_name='Assigned to', on_delete=models.SET_NULL, blank=True, null=True, help_text="If assigned, who has to do this chore?")
+    fixedValue = models.DecimalField(verbose_name='Assigned value', max_digits=8, decimal_places=2, blank=True, null=True, help_text="If assigned, mutually chosen value of chore (out of 100)")
 
     # Metadata
     class Meta: 
@@ -125,6 +126,7 @@ class Allocation(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, help_text="Unique ID for this allocation")
     assignments = models.ManyToManyField(Weight, help_text='Weights for all doers for the chores they are assigned')
     score = models.FloatField(default=100)
+    allScores = JSONField(default={})
 
     def __str__(self):
         """
@@ -133,11 +135,18 @@ class Allocation(models.Model):
         return '{} (Household: {})'.format(self.id, self.household.name)
         
     def calculateScore(self):
-        scores = []
-        for d in Doer.objects.filter(household=self.household):
+        scores = {}
+        for d in self.household.doer_set.all():
             dsAssignments = self.assignments.filter(doer=d)
-            scores.append(sum([a.chore.fixedValue if a.chore.isFixed else a.value for a in dsAssignments]))
-        return max(scores)
+            scores[d.pk] = sum([a.chore.fixedValue if a.chore.isFixed else a.value for a in dsAssignments])
+        return (max(scores.values()), scores)
+        
+    def position(self):
+        return (Allocation.objects
+        	.filter(household=self.household, score__lt=self.score)
+            .exclude(id=self.id)
+            .order_by('-score')
+            .count()) + 1
         
     def next(self):
         return (Allocation.objects

@@ -6,12 +6,15 @@ from .models import Doer, Chore, Household, Weight
 from decimal import Decimal
 
 class HouseholdLookupForm(forms.Form):
-    name = forms.CharField(help_text='Enter the name of the household you want to find. This is case-sensitive and should exactly match the name you used before.')
+    name = forms.CharField(help_text='''Enter the name of the household you want to find. 
+    This is case-sensitive and should exactly match the name you used before.''')
     
     def clean_name(self):
         data = self.cleaned_data['name']
         if not Household.objects.filter(name=data).exists():
-            raise forms.ValidationError(_("Sorry, we can't find that household in the database."), code="invalid")
+            raise forms.ValidationError(
+            _("Sorry, we can't find that household in the database."),
+            code="invalid")
         # Always return a value to use as the new cleaned data, even if
         # this method didn't change it.
         return data
@@ -41,7 +44,11 @@ class AddChoreForm(HouseholdEditForm):
         super(AddChoreForm, self).__init__(*args, **kwargs)
         chore = kwargs.get('chore', None)
         if chore is not None:
-        	self.initial = {'name': chore.name, 'isFixed': chore.isFixed, 'doer': chore.doer.pk if chore.doer else '', 'fixedValue': chore.fixedValue}
+            self.initial = {
+            'name': chore.name,
+            'isFixed': chore.isFixed,
+            'doer': chore.doer.pk if chore.doer else '', 'fixedValue': chore.fixedValue
+            }
         doers = self.household.doer_set.all()
         doer_field = self.fields['doer'].widget
         doer_choices = []
@@ -50,7 +57,19 @@ class AddChoreForm(HouseholdEditForm):
             doer_choices.append((doer.pk, doer.name))
         doer_field.choices = doer_choices
         
-    # TODO: validation if fixed!!
+    def clean(self):
+        super().clean()
+        if self.cleaned_data['isFixed']:
+            if not self.cleaned_data['doer']:
+                self.add_error('doer', 
+                    ValidationError('Must specify who is assigned this chore.'))
+            if self.cleaned_data['fixedValue'] is None:
+                self.add_error('fixedValue', 
+                    ValidationError('Must specify value of this chore.'))
+        else:
+            self.cleaned_data['doer'] = None
+            self.cleaned_data['fixedValue'] = None
+            
         
 
 class AddDoerForm(HouseholdEditForm):
@@ -63,11 +82,12 @@ class AddDoerForm(HouseholdEditForm):
         super(AddDoerForm, self).__init__(*args, **kwargs)
         doer = kwargs.get('doer', None)
         if doer is not None:
-        	self.initial = {'name': doer.name}
+            self.initial = {'name': doer.name}
         
 class AddWeightForm(forms.Form):
 
-    value=forms.DecimalField(widget = forms.NumberInput(attrs = {'step': 0.01, 'onchange' : "updateTotal();", 'class': 'freeWeightInput'}))
+    value=forms.DecimalField(widget = forms.NumberInput(
+        attrs = {'step': 0.01, 'onchange' : "updateTotal();", 'class': 'freeWeightInput'}))
     
     def __init__(self,*args,**kwargs):
         self.chore = kwargs.pop('chore')

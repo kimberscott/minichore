@@ -91,11 +91,11 @@ span.status.note {
 	margin-bottom: 2em;
 }
 
-#weightsForm table td {
+#weightsForm table td, #choreForm td {
 	padding-bottom: 1em;
 }
 
-#weightsForm table tr:last-child td,  #weightsForm table tr:last-child th {
+.totalRow td, .totalRow th {
 	padding-top: 1em;
 	border-top: thin solid black;
 }
@@ -103,4 +103,24 @@ span.status.note {
 ul.errorlist {
 	color:red;
 	list-style-type: none;
+}
+
+#allocationTable {
+	margin: auto;
+}
+
+#allocationTable td, #allocationTable th {
+	padding-left: 2em;
+	text-align: right;
+	padding-bottom: 1em;
+}
+
+div.allo-nav {
+	margin-top: 2em;
+}
+
+i.info {
+	color:gray;
+	font-size:medium;
+	vertical-align:top;
 }
