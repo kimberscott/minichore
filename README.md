@@ -46,4 +46,10 @@ Notes on how to deploy once that happens once!
 
 ## Contributing
 
-Contributions are welcome! 
+Contributions are welcome! This is a project I started in order to learn to use Django and any strange code you encounter likely reflects inexperience; please feel free to clean things up as you add...
+
+## To do
+
+- Allow the 'target' amount of work to vary per household member, instead of assuming an even split is desired - e.g., for families with children, couples who agree a stay-at-home parent should do >50% of housework, coworkers with different roles. Right now this would be done clumsily by assigning some placeholder task to people expected to do less.
+- Provide an optional allocation detail view that lists each person's chores, instead of a table, for accessibility/convenience.
+- Add user authentication so that users can be associated with households, enter and view their own weights, etc.
