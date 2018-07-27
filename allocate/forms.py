@@ -101,5 +101,5 @@ class BaseWeightFormSet(forms.BaseFormSet):
             # Don't bother validating unless each form is valid on its own
             return
         if self.get_total_weights() != 100:
-            raise forms.ValidationError("Weights must sum to 100.")
+            raise forms.ValidationError("Weights must sum to 100; try normalizing.")
 

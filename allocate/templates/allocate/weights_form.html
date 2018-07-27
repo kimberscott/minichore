@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<h2>{{doer.name}}'s chore weights</h2>
+
 
 <script type="text/javascript">
 
@@ -108,10 +108,13 @@
 	
 </script>
 
-<form method="post">
+<h2>{{doer.name}}'s chore weights</h2>
+<p> Note: editing weights will clear any existing allocations. </p>
+
+<form method="post" id="weightsForm">
 	{% csrf_token %}
     {{ formset.management_form }}
-    {{ formset.non_form_errors }}
+
     <table>
         {% for form in formset %}
 			{{ form.non_field_errors }}
@@ -140,7 +143,9 @@
 					  {{ form.value.help_text }}
 					</td>
 					<td>
+					{% if request.POST %}
 					  {{ form.value.errors }}
+					  {% endif %}
 					</td>
 					</tr>
 				{% endif %}
@@ -153,19 +158,21 @@
 				  
 				</td>
 				<td>
+				{{ formset.non_form_errors }}
 				</td>
 		</tr>
     </table>
-    <div class="row">
-    	<div class="col-sm-8">
-    	<p> Note: editing weights will clear any existing allocations. </p>
-		<a href="{% url 'weights-overview' doer.household.id %}" class="ml-auto btn btn-outline-danger doer pull-left">
-			Cancel
-		</a>
-		<button type="button" id="normalize" class="btn btn-outline-secondary doer pull-right">Normalize</button>
-		<input type="submit" value="Submit" class="btn btn-outline-secondary doer pull-right"/>
+    <div class="row">	
+    	<div class="col-sm-12">
+			<a href="{% url 'weights-overview' doer.household.id %}" class="ml-auto btn btn-outline-danger pull-left">
+				Cancel
+			</a>
+					<input type="submit" value="Submit" class="btn btn-outline-success  pull-right"/>
+			<button type="button" id="normalize" class="btn btn-outline-secondary  pull-right">Normalize</button>
+
 		</div>
     </div>
+    
 </form>
 {% endblock %}
 			

@@ -72,6 +72,35 @@ table.doerWeights th, table.doerWeights td {
 	color: black;
 }
 
-span.changestatus {
-	float: right;
+span.status.currentstatus {
+	font-size: 50%;
+}
+
+span.status {
+	font-size: 40%;
+	clear:right;
+	margin-top: .5em;
+}
+
+span.status.note {
+	max-width: 30%;
+}
+
+#weightsForm table {
+	margin-top: 2em;
+	margin-bottom: 2em;
+}
+
+#weightsForm table td {
+	padding-bottom: 1em;
+}
+
+#weightsForm table tr:last-child td,  #weightsForm table tr:last-child th {
+	padding-top: 1em;
+	border-top: thin solid black;
+}
+
+ul.errorlist {
+	color:red;
+	list-style-type: none;
 }

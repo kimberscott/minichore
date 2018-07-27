@@ -1,17 +1,17 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
-  <h1>Household: {{ household.name }}</h1>
-  
+  <h1>Household: {{ household.name }}
   {% if household.editing %} 
-  	<p><i class="fa fa-edit"></i> Editing 
-  	<span class="changestatus"><a href="{% url 'household-detail-lock' household.id %}"><i class="fa fa-lock"></i> Lock to move on to weights</a></span></p>
+  <span class="pull-right status currentstatus"><i class="fa fa-edit"></i> Editing</span>
+  <span class="pull-right status"><a href="{% url 'household-detail-lock' household.id %}"><i class="fa fa-lock"></i> Lock to enter weights</a></span>
   {% else %}
-  	<p><i class="fa fa-lock"></i> Locked
-  	<span class="changestatus"><a href="{% url 'household-detail-unlock' household.id %}"><i class="fa fa-unlock"></i> Unlock to edit household members or chores</a></span>
-  	</p>
-  	<p><span class="changestatus">(Note: unlocking will delete any weights you have already entered.)</span></p>
+  <span class="pull-right status currentstatus"> <i class="fa fa-lock"></i> Locked </span>
+  <span class="pull-right status"><a href="{% url 'household-detail-unlock' household.id %}"><i class="fa fa-unlock"></i> Unlock to edit</a></span>
+  <span class="pull-right status note">(Note: unlocking will delete any weights you have already entered.)</span>
   {% endif %}
+  </h1>
+ 
   
   <div class="household">
     <h2>Members 
