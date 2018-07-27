@@ -1,5 +1,7 @@
 # Minichore
 
+See the live site: https://minichore.herokuapp.com/
+
 This is a Django site for allocating chores among household members using a simple, brute-force minimax algorithm. Each household member gets to say how much each chore is "worth" to him or her, and then we minimize the total work done by each person according to their own weightings. 
 
 For instance, maybe Bob thinks laundry is 60% of the work and 
@@ -42,7 +44,7 @@ There are no tests yet! Sorry.
 
 ## Deployment
 
-Notes on how to deploy once that happens once!
+See https://developer.mozilla.org/en-US/docs/Learn/Server-side/Django/Deployment
 
 ## Contributing
 
