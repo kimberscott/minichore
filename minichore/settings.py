@@ -26,7 +26,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'cg#p$g+j9tax!#a3cup@1$8obt2_+&
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool( os.environ.get('DJANGO_DEBUG', True) )
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['minichore.herokuapp.com','127.0.0.1']
 
 # Application definition
 
@@ -143,3 +143,4 @@ os.makedirs(STATIC_ROOT, exist_ok=True)
 STATICFILES_DIRS = (
 os.path.join(BASE_DIR, 'static'),
 )
+
