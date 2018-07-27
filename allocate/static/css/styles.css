@@ -124,3 +124,28 @@ i.info {
 	font-size:medium;
 	vertical-align:top;
 }
+
+.text.problem-text {
+	background-color: #ffffcc;
+	border: thin solid gray;
+	border-radius: 10px;
+	box-sizing: content;
+	margin-top: 1em;
+}
+
+.text.about-text {
+	background-color: #eeeeee;
+	border: thin solid gray;
+	border-radius: 10px;
+	box-sizing: content;
+	margin-top: 1em;
+}
+
+.text {
+	padding: 1em;
+}
+
+p.faq {
+	font-size: 120%;
+	font-weight: bold;
+}

@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
 	path('', views.index, name='index'),
+	path('faq/', views.faq, name='faq'),
 	path('households/<uuid:pk>/', views.HouseholdDetailView.as_view(), name='household-detail'),
 	path('households/<uuid:pk>/lock/', views.HouseholdDetailView.as_view(),  {'changeLock': 'lock'}, name='household-detail-lock'),
 	path('households/<uuid:pk>/unlock/', views.HouseholdDetailView.as_view(), {'changeLock': 'unlock'}, name='household-detail-unlock'),

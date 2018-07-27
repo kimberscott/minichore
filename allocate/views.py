@@ -222,6 +222,17 @@ def index(request):
         'index.html',
         context={'num_households':num_households, 'num_visits':num_visits},
     )
+    
+    
+def faq(request):
+    """
+    View function for FAQ page
+    """
+    # Render the HTML template index.html with the data in the context variable
+    return render(
+        request,
+        'faq.html'
+    )
         
 def generate_allocations(household):
 

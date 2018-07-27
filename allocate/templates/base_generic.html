@@ -34,7 +34,7 @@ $(document).ready(function(){
       
       <nav class="nav flex-column nav-tabs" role="navigation">
           <a class="nav-link" href="{% url 'index' %}">Home</a>
-          
+          <a class="nav-link" href="{% url 'faq' %}">FAQ</a>
           {% if request.session.household %}
           <a class="nav-link" > Household: {{request.session.household.name}} </a>
           <ul>

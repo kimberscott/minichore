@@ -1,0 +1,50 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+
+<div class="titleblock">
+<h1>Frequently asked questions</h1>
+</div>
+
+<div class="row">
+<div class="col-sm-8">
+
+<p class="faq">What if there’s a chore I actually really want to do?</p>
+
+<p>You can use negative weights to represent “good” things. A weight of -5 on chore A means that you would be equally happy (a) doing nothing or (b) doing both chore A and chore B, which you see as 5% of the work.</p>
+
+<p class="faq">All of our allocations have scores greater than 1/N – i.e., someone does end up with more than their fair share of the work. Can we fix that?</p>
+
+<p>This can happen when people have similar preferences, and/or when there aren’t many more chores than people. You can generally fix this by splitting some of your chores into smaller pieces. (E.g., laundry might turn into kids laundry and grown-up laundry; taking care of the cat might become cleaning the litter box, buying cat supplies, arranging cat-sitters for travel, and vet visits.)   </p> 
+
+<p class="faq">What about chores that have to be done by a particular person?  </p>
+
+<p>Sometimes only one person is able to do a chore, but it still ought to be counted. For instance, maybe you actually can’t vacuum because of an injury, or you don’t want to assign your colorblind roommate to select paint colors for your new apartment. When you add a chore, you can say whether it’s “assigned” and if so, to whom and how much it “counts” for. (Coming eventually: being able to arbitrarily choose which people could be assigned to a chore.) </p>
+
+<p class="faq">My pregnant wife wants “being pregnant” to be one of the chores on the list, assigned to her, and she wants it to count for 75 points. </p>
+
+<p>Sounds fair. Go on…
+
+<p>Yes, you’ve identified a limitation of the system: you do need to be able to agree on how much the “assigned” chores count for. Sorry, it’s a website, not actual therapy.</p>
+
+<p class="faq">Where can we see the weights we’ve entered?</p>
+
+<p>It’s actually by design that you can’t, since your weights are ideally private information. If you’re worried that you entered something wrong, you can re-enter your weights. </p>
+
+<p class="faq">But what if other household members sneakily change MY weights?</p>
+
+<p>These are people you live with, right? You should probably trust them. But okay. You don’t actually have to: if you write down your own weights, you can double-check that your total lines up with what you see for a particular allocation. (Yes, it would also be possible to figure out the weights based on differences across allocations. See: you should trust these people.) </p>
+
+<p class="faq">How can I game the system?</p>
+
+<p>That’s an interesting game theory question! If you come across a good discussion of it, I’d love to hear. It’s true that being perfectly honest is not necessarily the “right” strategy: back to the dishes/laundry example, if you think dishes are 51% of the work, and your partner thinks dishes are 75% of the work, you’re going to get stuck with them. You don’t want that, so you might want to pretend you think dishes are 99% of the work. Informally, I think this gets to be less of a problem as there are more chores, because you’re more likely to get “called” on your willingness to do laundry as if it’s only a 1% job. </p>
+
+<p class="faq">But what if the other people in my household don’t do their chores? </p>
+
+<p>That stinks. Unfortunately we don’t have an algorithm about that. </p>
+
+
+</div>
+</div>
+
+{% endblock %}
