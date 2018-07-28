@@ -1,0 +1,1 @@
+web: gunicorn minichore.wsgi --log-file -
