@@ -278,5 +278,5 @@ class AllocationListView(generic.list.ListView):
         household = get_object_or_404(Household, id=self.kwargs['pk'])
         if not household.allocation_set.all().exists():
             generate_allocations(household)
-        return household.allocation_set.all()
+        return household.allocation_set.order_by('score', 'id')
 

@@ -127,6 +127,9 @@ class Allocation(models.Model):
     assignments = models.ManyToManyField(Weight, help_text='Weights for all doers for the chores they are assigned')
     score = models.FloatField(default=100)
     allScores = JSONField(default={})
+    
+    class Meta: 
+        ordering = ["id", "score"]
 
     def __str__(self):
         """
@@ -143,22 +146,25 @@ class Allocation(models.Model):
         
     def position(self):
         return (Allocation.objects
-        	.filter(household=self.household, score__lt=self.score)
+        	.filter(household=self.household, score__lte=self.score)
             .exclude(id=self.id)
-            .order_by('-score')
+            .exclude(score=self.score, id__gte=self.id)
+            .order_by('-score', 'id')
             .count()) + 1
         
     def next(self):
         return (Allocation.objects
-            .filter(household=self.household, score__gt=self.score)
+            .filter(household=self.household, score__gte=self.score)
             .exclude(id=self.id)
+            .exclude(score=self.score, id__lte=self.id)
             .order_by('score')
             .first())
     
     def prev(self):
         return (Allocation.objects
-        	.filter(household=self.household, score__lt=self.score)
+        	.filter(household=self.household, score__lte=self.score)
             .exclude(id=self.id)
+            .exclude(score=self.score, id__gte=self.id)
             .order_by('-score')
             .first())
         
