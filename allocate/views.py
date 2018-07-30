@@ -247,12 +247,8 @@ def generate_allocations(household):
     # Get doer list
     doers = household.doer_set.all()
     
-    iIter = 0
-    
     # For every possible mapping of doers to free chores...
     for doerAssignment in itertools.product(doers, repeat=len(freeChores)):
-        if iIter < household.haveAllocations:
-            continue
         # Create the allocation - 
         allo = Allocation(household=household)
         allo.save() # Must be saved before adding assignments
@@ -267,9 +263,6 @@ def generate_allocations(household):
         allo.score = score
         allo.allScores = scoreDict
         allo.save()
-        iIter = iIter + 1
-        household.haveAllocations = iIter
-        household.save()
     
 def allocation_detail(request, pkh, pka):
     household = get_object_or_404(Household, id=pkh)
@@ -283,7 +276,7 @@ class AllocationListView(generic.list.ListView):
     
     def get_queryset(self):
         household = get_object_or_404(Household, id=self.kwargs['pk'])
-        if not household.allocation_set.all().exists() or household.allocation_set.count() < household.doer_set.count() ** household.chore_set.count():
+        if not household.allocation_set.all().exists():
             generate_allocations(household)
         return household.allocation_set.order_by('score', 'id')
 
