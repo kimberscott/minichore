@@ -14,6 +14,7 @@ class Household(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, help_text="Unique ID for this household")
     editing = models.BooleanField(default=True)
     name = models.CharField(max_length=40, unique=True, help_text="Enter a name for the household (e.g., 'The Scotts')")
+    haveAllocations = models.IntegerField(default=0)
 
     # Methods
     def get_absolute_url(self):
