@@ -7,6 +7,7 @@ from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.forms import formset_factory
 from django.core.exceptions import ValidationError, PermissionDenied
 
+import threading
 import itertools
 
 from .models import Household, Doer, Chore, Allocation, Weight
@@ -277,6 +278,6 @@ class AllocationListView(generic.list.ListView):
     def get_queryset(self):
         household = get_object_or_404(Household, id=self.kwargs['pk'])
         if not household.allocation_set.all().exists():
-            generate_allocations(household)
+            threading.Thread(target=generate_allocations, args=(household,)).start()
         return household.allocation_set.order_by('score', 'id')
 
