@@ -19,5 +19,6 @@ urlpatterns = [
 	#path('households/<uuid:pk>/generateAllocations/', views.generate_allocations, name='generate-allocations'),
 	path('households/<uuid:pkh>/allocations/<uuid:pka>/', views.allocation_detail, name='allocation-detail'),
 	path('households/<uuid:pk>/allocations/', views.AllocationListView.as_view(), name='allocation-list'),
+	path('households/<uuid:pk>/allocations/rerun/',views.AllocationListView.as_view(), {'rerun': 'True'}, name='allocation-list-rerun'),
 	path('households/chores/<int:pk>/delete/', views.ChoreDelete.as_view(), name='chore-delete'),
 ]

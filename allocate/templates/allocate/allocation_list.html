@@ -12,6 +12,15 @@
   	daily chores and some bigger weekend/seasonal chores, or you don't want to end up with
   	one person doing all the childcare-related tasks. You're free to mutually agree on an 
   	allocation other than the "best" one - that's just a starting point! </p>  
+  	<p> <b>Status: </b>
+  	{% if household.completedAllocations %}
+  		Completed! 
+  	{% else %}
+  		Still searching for best allocation... {{household.allocationProgress|floatformat}}% done. Here's what we have so far:
+  	{% endif %}
+  	 <span class="pull-right "><a href="{% url 'allocation-list-rerun' household.id %}"><i class="fa fa-redo"></i> Re-run allocation</a></span>
+  	</p>
+  	
       {% if allocation_list %}
     <ul>
 
@@ -23,7 +32,19 @@
 
     </ul>
     {% else %}
-      <p>There are no allocations stored.</p>
+      <p>There are no allocations stored yet.</p>
     {% endif %}   
-  
+    
+    <p> 
+    	<i class="info fa fa-question-circle" data-toggle="tooltip" title="No, but the best one(s) 
+    is definitely there once the process completes. We loop through every possible allocation 
+    and only display it if it's at least as good as the best one we've seen so far, so some 
+    possibilities are not shown. The total number of allocations is (number of people in 
+    your household) to the power of (number of chores to assign), which gets to be a lot 
+    fast. For example, there are about 262,000 ways to assign 18 chores amongst a couple. 
+    If there are under 100 possibilities, you'll see all of them.">
+    	</i> 
+    	 Are these ALL the possible allocations?
+    </p>
+
 {% endblock %}

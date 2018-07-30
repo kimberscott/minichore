@@ -14,6 +14,9 @@ class Household(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, help_text="Unique ID for this household")
     editing = models.BooleanField(default=True)
     name = models.CharField(max_length=40, unique=True, help_text="Enter a name for the household (e.g., 'The Scotts')")
+    completedAllocations = models.BooleanField(default=False)
+    doingAllocations = models.BooleanField(default=False)
+    allocationProgress = models.FloatField(default=0)
 
     # Methods
     def get_absolute_url(self):
@@ -137,12 +140,12 @@ class Allocation(models.Model):
         """
         return '{} (Household: {})'.format(self.id, self.household.name)
         
-    def calculateScore(self):
-        scores = {}
-        for d in self.household.doer_set.all():
-            dsAssignments = self.assignments.filter(doer=d)
-            scores[d.pk] = sum([a.chore.fixedValue if a.chore.isFixed else a.value for a in dsAssignments])
-        return (max(scores.values()), scores)
+#     def calculateScore(self):
+#         scores = {}
+#         for d in self.household.doer_set.all():
+#             dsAssignments = self.assignments.filter(doer=d)
+#             scores[d.pk] = sum([a.chore.fixedValue if a.chore.isFixed else a.value for a in dsAssignments])
+#         return (max(scores.values()), scores)
         
     def position(self):
         return (Allocation.objects

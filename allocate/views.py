@@ -239,6 +239,10 @@ def generate_allocations(household):
 
     # Get rid of all other allocations for this household
     household.allocation_set.all().delete()
+    household.completedAllocations = False
+    household.doingAllocations = True
+    household.allocationProgress = 0
+    household.save()
     # Get chore list
     chores = household.chore_set.all()
     # Get free chore list
@@ -248,22 +252,52 @@ def generate_allocations(household):
     # Get doer list
     doers = household.doer_set.all()
     
+    # Store all weights
+    weights = {ch.id: {w.doer.id: w.value for w in ch.weight_set.all()} for ch in chores}
+    
+    # "Bonuses" due to fixed chores
+    bonuses = {d.id: sum([weights[ch.id][d.id] for ch in fixedChores if ch.doer.id == d.id]) for d in doers}
+    
+    def calculate_score(choreDict):
+        '''Calculates minimax score of allocation based on {choreId: doerId} dict for free chores'''
+        freeChoreScores = {d.id: sum([weights[chId][dId] for (chId, dId) in choreDict.items() if d.id == dId]) for d in doers}
+        totalScores = {dId: freeChoreScores[dId] + bonuses[dId] for dId in freeChoreScores}
+        score = max(totalScores.values())
+        return (score, totalScores)
+        
+    runningBest = 101 # Keep track of best allocation so far - start w/ impossibly high
+    nIter = 0 # keep track of which mapping we're on, so we can display progress
+    totalNIter = len(doers) ** len(freeChores) # How many mappings to consider (brute force)
+    
     # For every possible mapping of doers to free chores...
     for doerAssignment in itertools.product(doers, repeat=len(freeChores)):
-        # Create the allocation - 
-        allo = Allocation(household=household)
-        allo.save() # Must be saved before adding assignments
-        # First assign fixed chores to their doers
-        for ch in fixedChores:
-            w = ch.doer.weight_set.get(chore=ch)
-            allo.assignments.add(w)
-        for (d, ch) in zip(doerAssignment, freeChores):
-            w = d.weight_set.get(chore=ch)
-            allo.assignments.add(w)
-        (score, scoreDict) = allo.calculateScore()
-        allo.score = score
-        allo.allScores = scoreDict
-        allo.save()
+        choreDict = {freeChores[i].id: doerAssignment[i].id for i in range(len(doerAssignment))}
+        (score, scoreDict) = calculate_score(choreDict)
+        if score <= runningBest or totalNIter < 100: # Only store allocation if it's the best so far (or it's reasonable to show all possibilities)
+            runningBest = score
+            # Create the allocation - 
+            allo = Allocation(household=household)
+            allo.save() # Must be saved before adding assignments
+            # First assign fixed chores to their doers
+            for ch in fixedChores:
+                w = ch.doer.weight_set.get(chore=ch)
+                allo.assignments.add(w)
+            for (d, ch) in zip(doerAssignment, freeChores):
+                w = d.weight_set.get(chore=ch)
+                allo.assignments.add(w)
+            allo.score = score
+            allo.allScores = scoreDict
+            allo.save()
+        nIter = nIter + 1
+        if not nIter % 10000:
+            household.allocationProgress = 100 * nIter / totalNIter
+            household.save()
+    household.completedAllocations = True
+    household.doingAllocations = False
+    household.allocationProgress = 100
+    household.save()
+    
+    
     
 def allocation_detail(request, pkh, pka):
     household = get_object_or_404(Household, id=pkh)
@@ -277,7 +311,18 @@ class AllocationListView(generic.list.ListView):
     
     def get_queryset(self):
         household = get_object_or_404(Household, id=self.kwargs['pk'])
-        if not household.allocation_set.all().exists():
+        if (not household.doingAllocations) and (not household.completedAllocations):
             threading.Thread(target=generate_allocations, args=(household,)).start()
         return household.allocation_set.order_by('score', 'id')
-
+        
+    def get_context_data(self, **kwargs):
+        context = super(AllocationListView, self).get_context_data(**kwargs)
+        context['household'] = get_object_or_404(Household, id=self.kwargs['pk'])
+        return context
+    
+    def dispatch(self, request, *args, **kwargs):
+        if 'rerun' in kwargs:
+            household = get_object_or_404(Household, id=self.kwargs['pk'])
+            threading.Thread(target=generate_allocations, args=(household,)).start()
+            return HttpResponseRedirect(reverse('allocation-list', args=[household.id]))    
+        return super(AllocationListView, self).dispatch(request, *args, **kwargs)
