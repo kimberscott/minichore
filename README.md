@@ -52,6 +52,12 @@ Contributions are welcome! This is a project I started in order to learn to use 
 
 ## To do
 
-- Allow the 'target' amount of work to vary per household member, instead of assuming an even split is desired - e.g., for families with children, couples who agree a stay-at-home parent should do >50% of housework, coworkers with different roles. Right now this would be done clumsily by assigning some placeholder task to people expected to do less.
-- Provide an optional allocation detail view that lists each person's chores, instead of a table, for accessibility/convenience.
+- Point people to Example family & post walkthrough of process for this family (thanks [aniola](https://projects.metafilter.com/5485/Minimax-your-chores))
+
+- Make privacy of weights an aspect of the household, which can be modified when setting other household info (members, chores) - thanks [aniola](https://projects.metafilter.com/5485/Minimax-your-chores)
+
 - Add user authentication so that users can be associated with households, enter and view their own weights, etc.
+
+- Allow the 'target' amount of work to vary per household member, instead of assuming an even split is desired - e.g., for families with children, couples who agree a stay-at-home parent should do >50% of housework, coworkers with different roles. Right now this would be done clumsily by assigning some placeholder task to people expected to do less.
+
+- Provide an optional allocation detail view that lists each person's chores, instead of a table, for accessibility/convenience.
